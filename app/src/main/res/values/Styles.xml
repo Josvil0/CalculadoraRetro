@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <style name="botonR" parent="Widget.AppCompat.Button">
+        <item name="android:textColor">#DE890A</item>
+        <item name="backgroundTint">#4A2389</item>
+        <item name="android:textSize">75dp</item>
+        <item name="fontFamily">@font/calculadora</item>
+    </style>
+</resources>
