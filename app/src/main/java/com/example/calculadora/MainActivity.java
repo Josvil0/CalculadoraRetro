@@ -4,163 +4,130 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
 
+/**
+ * Actividad principal de la aplicación calculadora.
+ * Esta clase gestiona la interfaz de usuario y la interacción con el usuario.
+ */
 public class MainActivity extends AppCompatActivity {
-    TextView resultado; // Muestra el resultado
-    String operacion = ""; // La operación que se está realizando
-    double valor1 = 0, valor2 = 0; // Los valores que se van a calcular
-    String operador = ""; // Guarda el operador actual (+, -, *, /)
-    boolean nuevoValor = true; // Controla si es un nuevo valor a ingresar
-    boolean error = false; // Controla si hubo un error previo
-
-    View.OnClickListener saberNumero = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (error) {
-                // Si hubo un error previo, reiniciamos la calculadora
-                reiniciarCalculadora();
-            }
-            Button boton = (Button) view;
-            String numero = boton.getText().toString();
-
-            if (nuevoValor) {
-                resultado.setText(numero);
-                nuevoValor = false;
-            } else {
-                resultado.append(numero);
-            }
-
-            operacion = resultado.getText().toString();
-        }
-    };
-
-    View.OnClickListener borrar = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            reiniciarCalculadora();
-        }
-    };
-
-    View.OnClickListener igual = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            try {
-                // Obtenemos el segundo valor
-                valor2 = Double.parseDouble(resultado.getText().toString());
-                double resultadoOperacion = 0;
-
-                // Realizamos la operación basada en el operador seleccionado
-                switch (operador) {
-                    case "+":
-                        resultadoOperacion = valor1 + valor2;
-                        break;
-                    case "-":
-                        resultadoOperacion = valor1 - valor2;
-                        break;
-                    case "x":
-                        resultadoOperacion = valor1 * valor2;
-                        break;
-                    case "/":
-                        if (valor2 != 0) {
-                            resultadoOperacion = valor1 / valor2;
-                        } else {
-                            throw new ArithmeticException("División por cero");
-                        }
-                        break;
-                    default:
-                        throw new IllegalStateException("Operador inválido");
-                }
-
-                // Mostramos el resultado
-                resultado.setText(String.valueOf(resultadoOperacion));
-                nuevoValor = true; // Preparar para un nuevo cálculo
-            } catch (Exception e) {
-                resultado.setText("Error"); // Error 
-                error = true;
-            }
-        }
-    };
-
-    View.OnClickListener operadores = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (error) {
-                reiniciarCalculadora();
-            }
-            Button boton = (Button) view;
-            operador = boton.getText().toString(); // Guarda el operador presionado
-
-            // Verificar si el campo no está vacío antes de asignar valor
-            if (!resultado.getText().toString().isEmpty()) {
-                valor1 = Double.parseDouble(resultado.getText().toString());
-                nuevoValor = true; // Prepara para el siguiente valor
-            }
-        }
-    };
-
-    private void reiniciarCalculadora() {
-        // Reinicia todos los valores de la calculadora
-        resultado.setText("");
-        operacion = "";
-        valor1 = 0;
-        valor2 = 0;
-        operador = "";
-        nuevoValor = true;
-        error = false;
-    }
+    private TextView resultado; // Muestra el resultado de la operación
+    private String operacion = ""; // La operación completa que se va a calcular
+    private boolean error = false; // Controla si hubo un error previo
+    private Calculator calculator; // Instancia de la clase Calculator
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         resultado = findViewById(R.id.resultado);
+        calculator = new Calculator();
 
-        // Vinculamos los botones con la interfaz gráfica
-        Button boton0 = findViewById(R.id.button0);
-        Button boton1 = findViewById(R.id.button1);
-        Button boton2 = findViewById(R.id.button2);
-        Button boton3 = findViewById(R.id.button3);
-        Button boton4 = findViewById(R.id.button4);
-        Button boton5 = findViewById(R.id.button5);
-        Button boton6 = findViewById(R.id.button6);
-        Button boton7 = findViewById(R.id.button7);
-        Button boton8 = findViewById(R.id.button8);
-        Button boton9 = findViewById(R.id.button9);
+        // Configurar botones
+        configurarBotones();
+    }
 
-        // Asignamos los listeners para cada botón
-        boton0.setOnClickListener(saberNumero);
-        boton1.setOnClickListener(saberNumero);
-        boton2.setOnClickListener(saberNumero);
-        boton3.setOnClickListener(saberNumero);
-        boton4.setOnClickListener(saberNumero);
-        boton5.setOnClickListener(saberNumero);
-        boton6.setOnClickListener(saberNumero);
-        boton7.setOnClickListener(saberNumero);
-        boton8.setOnClickListener(saberNumero);
-        boton9.setOnClickListener(saberNumero);
+    /**
+     * Configura los botones de la calculadora y sus respectivos listeners.
+     */
+    private void configurarBotones() {
+        // Botones de números
+        int[] numeros = {R.id.button0, R.id.button1, R.id.button2, R.id.button3, R.id.button4, R.id.button5, R.id.button6, R.id.button7, R.id.button8, R.id.button9};
+        for (int id : numeros) {
+            Button boton = findViewById(id);
+            boton.setOnClickListener(saberNumero);
+        }
 
-        // Vinculamos los botones de las operaciones y el botón C
+        // Botones de operadores
         Button botonSumar = findViewById(R.id.buttonPlus);
         Button botonRestar = findViewById(R.id.buttonRes);
         Button botonMultiplicar = findViewById(R.id.buttonMult);
         Button botonDividir = findViewById(R.id.buttonDiv);
-        Button botonIgual = findViewById(R.id.buttonIgual);
-        Button botonBorrar = findViewById(R.id.buttonC);
-
-        // Asignamos los listeners para las operaciones
         botonSumar.setOnClickListener(operadores);
         botonRestar.setOnClickListener(operadores);
         botonMultiplicar.setOnClickListener(operadores);
         botonDividir.setOnClickListener(operadores);
 
-        // Listener para el botón igual
+        // Botones de acción
+        Button botonIgual = findViewById(R.id.buttonIgual);
+        Button botonBorrar = findViewById(R.id.buttonC);
         botonIgual.setOnClickListener(igual);
-
-        // Listener para el botón borrar
         botonBorrar.setOnClickListener(borrar);
     }
+
+    /**
+     * Reinicia la calculadora, borrando el resultado y la operación actual.
+     */
+    private void reiniciarCalculadora() {
+        resultado.setText("");
+        operacion = "";
+        error = false;
+    }
+
+    /**
+     * Listener para manejar el ingreso de números.
+     * Concatenará el número al final de la operación actual.
+     */
+    private final View.OnClickListener saberNumero = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (error) {
+                reiniciarCalculadora();
+            }
+            Button boton = (Button) view;
+            String numero = boton.getText().toString();
+
+            // Concatenar el número al final de la operación
+            operacion += numero;
+            resultado.setText(operacion);
+        }
+    };
+
+    /**
+     * Listener para manejar el evento de borrar la operación actual.
+     * Reinicia la calculadora.
+     */
+    private final View.OnClickListener borrar = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            reiniciarCalculadora();
+        }
+    };
+
+    /**
+     * Listener para manejar el evento de calcular el resultado de la operación.
+     * Evalúa la expresión y muestra el resultado o un mensaje de error.
+     */
+    private final View.OnClickListener igual = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            try {
+                double resultadoOperacion = calculator.evaluarExpresion(operacion);
+                resultado.setText(String.valueOf(resultadoOperacion));
+                operacion = String.valueOf(resultadoOperacion); // Actualizar la operación con el resultado
+            } catch (Exception e) {
+                resultado.setText("Error");
+                error = true;
+            }
+        }
+    };
+
+    /**
+     * Listener para manejar la entrada de operadores.
+     * Concatenará el operador al final de la operación actual.
+     */
+    private final View.OnClickListener operadores = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (error) {
+                reiniciarCalculadora();
+            }
+            Button boton = (Button) view;
+            String operador = boton.getText().toString();
+
+            // Concatenar el operador al final de la operación
+            operacion += operador;
+            resultado.setText(operacion);
+        }
+    };
 }
-
-
